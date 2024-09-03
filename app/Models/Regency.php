@@ -12,4 +12,14 @@ class Regency extends Model
 
     protected $table = 'reg_regencies';
     protected $guarded = ['id'];
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function districts()
+    {
+        return $this->hasMany(District::class);
+    }
 }

@@ -12,4 +12,9 @@ class Village extends Model
 
     protected $table = 'reg_villages';
     protected $guarded = ['id'];
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
 }

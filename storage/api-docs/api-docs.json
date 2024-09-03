@@ -31,7 +31,7 @@
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "12345678"
+                                        "example": "password1"
                                     }
                                 },
                                 "type": "object"
@@ -50,12 +50,20 @@
                                             "type": "boolean",
                                             "example": true
                                         },
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Berhasil login"
                                         },
-                                        "token": {
+                                        "access_token": {
                                             "type": "string",
                                             "example": "eyJhbGciOiJIUzI1NiIsInR..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
                                         }
                                     },
                                     "type": "object"
@@ -64,7 +72,24 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized - Email or password is incorrect"
+                        "description": "Unauthorized - Email or password is incorrect",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email atau Password Anda salah"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation Error",
@@ -85,6 +110,22 @@
                                                 "type": "string",
                                                 "example": "The password field is required."
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "An error occurred while trying to login."
                                         }
                                     },
                                     "type": "object"
@@ -143,6 +184,9 @@
                                 }
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 },
                 "security": [
@@ -150,6 +194,135 @@
                         "api_auth": []
                     }
                 ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Create a new user / register",
+                "description": "This endpoint allows you to create a new user / register",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "role_id",
+                                    "institute",
+                                    "province_id",
+                                    "regency_id"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "role_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "institute": {
+                                        "type": "string",
+                                        "example": "XYZ University"
+                                    },
+                                    "province_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "regency_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password1"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string",
+                                                "property": null
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - User could not be created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
             }
         },
         "/api/me": {
@@ -186,6 +359,60 @@
                     },
                     "401": {
                         "description": "Unauthorized - User is not authenticated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "api_auth": []
+                    }
+                ]
+            }
+        },
+        "/api/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh JWT Token",
+                "description": "This endpoint allows you to refresh the JWT token and get a new access token.",
+                "operationId": "089dbf17b53118b637823e16bf4a40f9",
+                "responses": {
+                    "200": {
+                        "description": "Token refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Berhasil refresh"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 },
                 "security": [
@@ -238,6 +465,9 @@
                     },
                     "404": {
                         "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 },
                 "security": [
@@ -292,6 +522,9 @@
                     },
                     "404": {
                         "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 },
                 "security": [

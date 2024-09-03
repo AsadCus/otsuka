@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('institute');
+            $table->foreignId('province_id')->index()->constrained('reg_provinces')->cascadeOnDelete();
+            $table->foreignId('regency_id')->index()->constrained('reg_regencies')->cascadeOnDelete();
             $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();

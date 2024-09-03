@@ -12,4 +12,9 @@ class Province extends Model
 
     protected $table = 'reg_provinces';
     protected $guarded = ['id'];
+
+    public function regencies()
+    {
+        return $this->hasMany(Regency::class);
+    }
 }

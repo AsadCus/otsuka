@@ -36,14 +36,61 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized - User is not authenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
      *     )
      * )
      */
     public  function me(Request $request)
     {
-        $data = $request->user();
+        try {
+            $data = $request->user();
 
-        return new PostResources(true, 'Data user', $data);
+            return new PostResources(true, 'Data user', $data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/refresh",
+     *     summary="Refresh JWT Token",
+     *     description="This endpoint allows you to refresh the JWT token and get a new access token.",
+     *     tags={"Authentication"},
+     *     security={{"api_auth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token refreshed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Berhasil refresh"),
+     *             @OA\Property(property="access_token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."),
+     *             @OA\Property(property="token_type", type="string", example="bearer"),
+     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function refresh()
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil refresh',
+                'access_token' => auth()->refresh(),
+                'token_type' => 'bearer',
+                'user' => auth()->guard('api')->user(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 
@@ -82,18 +129,22 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="Not Found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
      *     )
      * )
      */
     public function index()
     {
-        $data = User::get();
-        // $data = $users->map(function ($q) {
-        //     $q->role = Role::find($q->role_id)->name;
-        //     return $q;
-        // });
+        try {
+            $data = User::get();
 
-        return new PostResources(true, 'List data user', $data);
+            return new PostResources(true, 'List data user', $data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function create()
@@ -139,14 +190,22 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="User not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
      *     )
      * )
      */
     public function show(string $id)
     {
-        $user = User::find($id);
+        try {
+            $user = User::find($id);
 
-        return new PostResources(true, 'Data user', $user);
+            return new PostResources(true, 'Data user', $user);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function edit(string $id)

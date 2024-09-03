@@ -53,18 +53,26 @@ class LogoutController extends Controller
      *                 example="Unauthorized"
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
      *     )
      * )
      */
     public function __invoke(Request $request)
     {
-        $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
+        try {
+            $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
 
-        if ($removeToken) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Logout Berhasil!',
-            ], 200);
+            if ($removeToken) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Logout Berhasil!',
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

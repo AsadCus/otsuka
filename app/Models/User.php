@@ -81,33 +81,16 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $guarded = ['id'];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
-        'role'
+        'role',
+        'province',
+        'regency'
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -116,28 +99,28 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    protected $appends = ['role_name'];
+    protected $appends = ['role_name', 'province_name', 'regency_name'];
 
     public function getRoleNameAttribute()
     {
         return $this->role ? $this->role->name : 'No Role';
     }
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
+    public function getProvinceNameAttribute()
+    {
+        return $this->province ? $this->province->name : 'No Province';
+    }
+
+    public function getRegencyNameAttribute()
+    {
+        return $this->regency ? $this->regency->name : 'No Regency';
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
     public function getJWTCustomClaims()
     {
         return [];
@@ -151,5 +134,15 @@ class User extends Authenticatable implements JWTSubject
     public function patients()
     {
         return $this->hasMany(Patient::class, 'treated_by');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function regency()
+    {
+        return $this->belongsTo(Regency::class);
     }
 }

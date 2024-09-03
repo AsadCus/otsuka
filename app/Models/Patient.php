@@ -12,9 +12,30 @@ class Patient extends Model
 
     protected $table = 'patients';
     protected $guarded = ['id'];
+    protected $appends = ['province_name', 'regency_name'];
+
+    public function getProvinceNameAttribute()
+    {
+        return $this->province ? $this->province->name : 'No Province';
+    }
+
+    public function getRegencyNameAttribute()
+    {
+        return $this->regency ? $this->regency->name : 'No Regency';
+    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function regency()
+    {
+        return $this->belongsTo(Regency::class);
     }
 }

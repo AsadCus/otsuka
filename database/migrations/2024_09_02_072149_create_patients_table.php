@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('unique_number')->unique();
             $table->string('place_of_birth');
             $table->timestamp('time_of_birth');
+            $table->text('address')->nullable();
+            $table->foreignId('province_id')->index()->constrained('reg_provinces')->cascadeOnDelete();
+            $table->foreignId('regency_id')->index()->constrained('reg_regencies')->cascadeOnDelete();
             $table->foreignId('treated_by')->index()->constrained('users')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();

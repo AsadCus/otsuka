@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\LoginController;
@@ -13,6 +12,7 @@ Route::post('/logout', LogoutController::class)->name('logout');
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/me', [UserController::class, 'me'])->name('me');
+    Route::post('/refresh', [UserController::class, 'refresh'])->name('refresh');
 
     Route::apiResource('user', UserController::class);
 });
