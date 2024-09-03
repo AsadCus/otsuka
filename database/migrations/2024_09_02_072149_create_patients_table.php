@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('place_of_birth');
             $table->timestamp('time_of_birth');
             $table->foreignId('treated_by')->index()->constrained('users')->cascadeOnDelete();
-            $table->boolean('status')->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

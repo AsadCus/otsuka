@@ -8,5 +8,5 @@ Route::get('/', function () {
 });
 
 Route::resources([
-    'users' => UserController::class
+    'user' => UserController::class
 ]);

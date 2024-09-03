@@ -1,18 +1,208 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Swagger with Laravel",
+        "title": "Otsuka API",
         "version": "1.0.0"
     },
     "paths": {
-        "/api/users": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login a user",
+                "description": "Authenticates a user and returns a token if successful. The user must not be soft-deleted (deleted_at must be null).",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "12345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Email or password is incorrect"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "email": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "The email field is required."
+                                            }
+                                        },
+                                        "password": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "The password field is required."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout the user and invalidate the JWT token",
+                "description": "Logs out the user by invalidating the JWT token.",
+                "operationId": "logoutUser",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout Berhasil!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized, token invalid or expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_auth": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
             "get": {
                 "tags": [
-                    "Users"
+                    "User"
                 ],
-                "summary": "Get list of users",
-                "description": "Returns a list of users",
-                "operationId": "getUsersList",
+                "summary": "Get current authenticated user",
+                "description": "Returns the details of the currently authenticated user.",
+                "operationId": "getCurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data user"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - User is not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "api_auth": []
+                    }
+                ]
+            }
+        },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get list of user",
+                "description": "Returns a list of user",
+                "operationId": "getuserList",
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -49,13 +239,18 @@
                     "404": {
                         "description": "Not Found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "api_auth": []
+                    }
+                ]
             }
         },
-        "/api/users/{id}": {
+        "/api/user/{id}": {
             "get": {
                 "tags": [
-                    "Users"
+                    "User"
                 ],
                 "summary": "Get a user by ID",
                 "description": "Returns a single user based on the provided ID",
@@ -98,7 +293,12 @@
                     "404": {
                         "description": "User not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "api_auth": []
+                    }
+                ]
             }
         }
     },
@@ -118,6 +318,16 @@
                         "type": "string",
                         "example": "John Doe"
                     },
+                    "role_id": {
+                        "description": "Role ID",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "role_name": {
+                        "description": "Role",
+                        "type": "string",
+                        "example": "Role"
+                    },
                     "email": {
                         "description": "User's email",
                         "type": "string",
@@ -128,6 +338,12 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2024-09-02T10:00:00Z"
+                    },
+                    "deleted_at": {
+                        "description": "User update timestamp",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-02T14:20:00Z"
                     },
                     "created_at": {
                         "description": "User creation timestamp",
@@ -146,8 +362,9 @@
             }
         },
         "securitySchemes": {
-            "bearerAuth": {
+            "api_auth": {
                 "type": "http",
+                "description": "Enter your JWT token in the format **Bearer &lt;token&gt;**",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }
@@ -155,8 +372,12 @@
     },
     "tags": [
         {
-            "name": "Users",
-            "description": "Users"
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "User",
+            "description": "User"
         }
     ]
 }

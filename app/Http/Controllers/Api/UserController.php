@@ -2,20 +2,61 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResources;
 
 class UserController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/users",
-     *     operationId="getUsersList",
-     *     tags={"Users"},
-     *     summary="Get list of users",
-     *     description="Returns a list of users",
+     *     path="/api/me",
+     *     operationId="getCurrentUser",
+     *     tags={"User"},
+     *     summary="Get current authenticated user",
+     *     description="Returns the details of the currently authenticated user.",
+     *     security={{
+     *         "api_auth": {}
+     *     }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data user"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/User"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - User is not authenticated"
+     *     )
+     * )
+     */
+    public  function me(Request $request)
+    {
+        $data = $request->user();
+
+        return new PostResources(true, 'Data user', $data);
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/user",
+     *     operationId="getuserList",
+     *     tags={"User"},
+     *     summary="Get list of user",
+     *     description="Returns a list of user",
+     *     security={{
+     *         "api_auth": {}
+     *     }},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -46,22 +87,20 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::get();
+        $data = User::get();
+        // $data = $users->map(function ($q) {
+        //     $q->role = Role::find($q->role_id)->name;
+        //     return $q;
+        // });
 
-        return new UserResource(true, 'List data user', $users);
+        return new PostResources(true, 'List data user', $data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
@@ -69,11 +108,14 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/users/{id}",
+     *     path="/api/user/{id}",
      *     operationId="getUserById",
-     *     tags={"Users"},
+     *     tags={"User"},
      *     summary="Get a user by ID",
      *     description="Returns a single user based on the provided ID",
+     *     security={{
+     *         "api_auth": {}
+     *     }},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -104,28 +146,19 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        return new UserResource(true, 'Data user', $user);
+        return new PostResources(true, 'Data user', $user);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

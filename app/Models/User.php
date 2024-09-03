@@ -3,9 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 /**
  * @OA\Schema(
@@ -26,6 +28,18 @@ use Illuminate\Notifications\Notifiable;
  *         example="John Doe"
  *     ),
  *     @OA\Property(
+ *         property="role_id",
+ *         type="integer",
+ *         description="Role ID",
+ *         example=1
+ *     ),
+ *     @OA\Property(
+ *         property="role_name",
+ *         type="string",
+ *         description="Role",
+ *         example="Role"
+ *     ),
+ *     @OA\Property(
  *         property="email",
  *         type="string",
  *         description="User's email",
@@ -37,6 +51,13 @@ use Illuminate\Notifications\Notifiable;
  *         format="date-time",
  *         description="Email verification timestamp",
  *         example="2024-09-02T10:00:00Z"
+ *     ),
+ *     @OA\Property(
+ *         property="deleted_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="User update timestamp",
+ *         example="2024-09-02T14:20:00Z"
  *     ),
  *     @OA\Property(
  *         property="created_at",
@@ -56,9 +77,9 @@ use Illuminate\Notifications\Notifiable;
  */
 
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -79,6 +100,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'role'
     ];
 
     /**
@@ -92,6 +114,33 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected $appends = ['role_name'];
+
+    public function getRoleNameAttribute()
+    {
+        return $this->role ? $this->role->name : 'No Role';
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 
     public function role()
